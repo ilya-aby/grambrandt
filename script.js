@@ -83,7 +83,6 @@ function renderPosts(artworks) {
   addSentinel();
 }
 
-// Function to show the loading spinner
 function showLoadingSpinner() {
     let spinner = document.querySelector(".spinner");
     if (!spinner) {
@@ -94,7 +93,6 @@ function showLoadingSpinner() {
     spinner.style.display = 'block';
 }
 
-// Function to hide the loading spinner
 function hideLoadingSpinner() {
     const spinner = document.querySelector(".spinner");
     if (spinner) {
@@ -102,7 +100,7 @@ function hideLoadingSpinner() {
     }
 }
 
-// Function to add sentinel
+// Invisible sentinel div to trigger infinite scroll
 function addSentinel() {
     const main = document.querySelector("main");
     let sentinel = document.querySelector('.sentinel');
@@ -116,41 +114,43 @@ function addSentinel() {
 
 // Function to fetch and render artworks
 function fetchAndRenderArtworks(isInitialLoad = false) {
+  if (isInitialLoad) {
     showLoadingSpinner();
-    fetchArtworkIds().then(artworks => {
-        console.log('Fetched artworks:', artworks);
-        if (artworks.length > 0) {
-            const artworkIds = artworks.map(artwork => artwork.id);
-            fetchArtworkInfo(artworkIds).then(artworkInfoArray => {
-                console.log('Fetched artwork info for all artworks:', artworkInfoArray);
-                hideLoadingSpinner();
+  }
+  fetchArtworkIds().then(artworks => {
+      console.log('Fetched artwork IDs:', artworks);
+      if (artworks.length > 0) {
+          const artworkIds = artworks.map(artwork => artwork.id);
+          fetchArtworkInfo(artworkIds).then(artworkInfoArray => {
+              console.log('Fetched artwork metadata:', artworkInfoArray);
+              hideLoadingSpinner();
 
-                // Create a copy of the array to shuffle
-                const arrayToShuffle = [...artworkInfoArray];
+              // Create a copy of the array to shuffle
+              const arrayToShuffle = [...artworkInfoArray];
 
-                // Shuffle and render the copy
-                shuffleArray(arrayToShuffle);
-                renderPosts(arrayToShuffle);
+              // Shuffle and render the copy
+              shuffleArray(arrayToShuffle);
+              renderPosts(arrayToShuffle);
 
-                // Set up intersection observer after initial load
-                if (isInitialLoad) {
-                    setupInfiniteScroll();
-                } else {
-                    // Re-observe the sentinel for subsequent loads
-                    observeSentinel(window.infiniteScrollObserver);
-                }
-            });
-        } else {
-            hideLoadingSpinner();
-        }
-    });
+              // Set up intersection observer after initial load
+              if (isInitialLoad) {
+                  setupInfiniteScroll();
+              } else {
+                  // Re-observe the sentinel for subsequent loads
+                  observeSentinel(window.infiniteScrollObserver);
+              }
+          });
+      } else {
+          hideLoadingSpinner();
+      }
+  });
 }
 
 // Function to set up infinite scroll
 function setupInfiniteScroll() {
     const options = {
         root: null,
-        rootMargin: '600px',
+        rootMargin: '1000px',
         threshold: 0
     };
 
