@@ -1,5 +1,3 @@
-
-
 // Helper to randomize the order of artworks from API
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
@@ -8,145 +6,116 @@ function shuffleArray(array) {
   }
 }
 
-// Generate a username from the artist name
-// Takes a full name, uses initials of first name(s) and full last name
-// Example: "Vincent van Gogh" becomes "vvangogh"
-function createUsername(name) {
-    const cleanedName = name.replace(/['"-()]/g, ''); // Remove apostrophes and hyphens
-    const words = cleanedName.split(' ');
-    const lastName = words.pop().toLowerCase();
-    const initials = words.map(word => word[0].toLowerCase()).join('');
-    return initials + lastName;
+// Transforms artist name into username, avatar initials, and random background color
+function createUserInfo(name) {
+  const cleanedName = name.replace(/['"-()]/g, '');
+  const words = cleanedName.split(' ');
+  const lastName = words.pop().toLowerCase();
+  const initials = words.map(word => word[0].toLowerCase()).join('');
+  const username = initials + lastName;
+  
+  const avatarInitials = (words[0][0] + lastName[0]).toUpperCase();
+  const backgroundColor = `hsl(${Math.floor(Math.random() * 360)}, 60%, 30%)`;
+
+  return { username, avatarInitials, backgroundColor };
 }
 
-// Create an avatar icon from the artist name
-// Uses initials of first name(s) and full last name
-// Example: "Vincent van Gogh" becomes "VV"
-function createAvatarIcon(name) {
-    // Generate initials
-    const words = name.split(' ');
-    const firstInitial = words[0][0];
-    const lastInitial = words[words.length - 1][0];
-    const initials = (firstInitial + lastInitial).toUpperCase();
-
-    // Generate a random dark color
-    const hue = Math.floor(Math.random() * 360);
-    const backgroundColor = `hsl(${hue}, 60%, 30%)`;
-
-    // Return an object with the initials and background color
-    return { initials, backgroundColor };
-}
-
-// Calculate the average year between start and end dates, then return a string
-// representing how many years ago that average year was from today
+// Transforms art creation years into "X years ago" for post
 function createYearsAgoString(dateStart, dateEnd) {
-    // Calculate the average year
-    const averageYear = Math.round((dateStart + dateEnd) / 2);
-    
-    // Get the current year
-    const currentYear = new Date().getFullYear();
-    
-    // Calculate the difference
-    const yearDifference = currentYear - averageYear;
-    
-    // Return the formatted string
-    if (yearDifference === 1) {
-        return "1 year ago";
-    } else {
-        return `${yearDifference} years ago`;
-    }
+  const yearDifference = new Date().getFullYear() - Math.round((dateStart + dateEnd) / 2);
+  return yearDifference === 1 ? "1 year ago" : `${yearDifference} years ago`;
 }
 
 // Create random engagement numbers
 function createRandomEngagement() {
-    const likes = Math.floor(Math.random() * (900 - 100 + 1) + 100);
-    const comments = Math.floor(Math.random() * (99 - 10 + 1) + 10);
-    const shares = Math.floor(Math.random() * (999 - 100 + 1) + 100);
-
-    const formattedLikes = (likes / 100).toFixed(1) + 'K';
-
-    return {
-        likesString: `${formattedLikes}`,
-        commentsString: `${comments}`,
-        sharesString: `${shares}`
-    };
+  return {
+      likesString: ((Math.floor(Math.random() * 801 + 100) / 100).toFixed(1) + 'K'),
+      commentsString: Math.floor(Math.random() * 90 + 10).toString(),
+      sharesString: Math.floor(Math.random() * 900 + 100).toString()
+  };
 }
 
 function renderPosts(artworks) {
+  const main = document.querySelector("main");
+  const postContent = artworks.map(artwork => {
+      const { username, avatarInitials, backgroundColor } = createUserInfo(artwork.artist_title);
+      const postCaption = `<em>${artwork.title}</em>, ${artwork.medium_display}. ${artwork.short_description}`;
+      const yearsAgo = createYearsAgoString(artwork.date_start, artwork.date_end);
+      const engagement = createRandomEngagement();
 
-    const main = document.querySelector("main");
+      return `
+      <div class="container">
+          <div class="post">
+              <div class="post-header">
+                  <div class="user-avatar" style="background-color: ${backgroundColor};">
+                      <span class="initials">${avatarInitials}</span>
+                  </div>
+                  <div class="user-info">
+                      <a class="bold-text" href="https://www.artic.edu/artists/${artwork.artist_id}" target="_blank" rel="noopener noreferrer">${artwork.artist_title}</a>
+                      <p class="small-text">${artwork.place_of_origin}</p>
+                  </div>
+              </div>
+              <img class="post-image" src="${artwork.image_url}" alt="Post Image">
+              <div class="post-footer">
+                  <div class="actions">
+                      <div class="action-group">
+                          <img class="icon" src="images/icon-heart.png" alt="heart Icon">
+                          <p class="bold-text">${engagement.likesString}</p>
+                      </div>
+                      <div class="action-group">
+                          <img class="icon" src="images/icon-comment.png" alt="comment Icon">
+                          <p class="bold-text">${engagement.commentsString}</p>
+                      </div>
+                      <div class="action-group">
+                          <img class="icon" src="images/icon-dm.png" alt="dm Icon">
+                          <p class="bold-text">${engagement.sharesString}</p>
+                      </div>
+                  </div>
+                  <p class="light-text caption"><span class="bold-text">${username}</span> ${postCaption}</p>
+                  <p class="small-text gray-text">${yearsAgo}</p>
+              </div>
+          </div>
+      </div>
+      `;
+  }).join('');
 
-    artworks.forEach(artwork => {
-        // Create a username and avatar icon from the artist's full name
-        const username = createUsername(artwork.artist_title);
-        const avatarIcon = createAvatarIcon(artwork.artist_title);
-
-        // Prepend the artwork name & medium into the short description to form the post caption
-        const postCaption = `<em>${artwork.title}</em>, ${artwork.medium_display}. ${artwork.short_description}`
-
-        // Create a "years ago" string from the date start and end
-        const yearsAgo = createYearsAgoString(artwork.date_start, artwork.date_end);
-
-        // Create random engagement numbers
-        const engagement = createRandomEngagement();
-
-        const artistLink = `https://www.artic.edu/artists/${artwork.artist_id}`;
-
-        postContent = `
-        <div class="container">
-            <div class="post">
-                <div class="post-header">
-                    <div class="user-avatar" style="background-color: ${avatarIcon.backgroundColor};">
-                        <span class="initials">${avatarIcon.initials}</span>
-                    </div>
-                    <div class="user-info">
-                        <a class="bold-text" href="${artistLink}" target="_blank" rel="noopener noreferrer">${artwork.artist_title}</a>
-                        <p class="small-text">${artwork.place_of_origin}</p>
-                    </div>
-                </div>
-                <img class="post-image" src="${artwork.image_url}" alt="Post Image">
-                <div class="post-footer">
-                    <div class="actions">
-                        <div class="action-group">
-                            <img class="icon" src="images/icon-heart.png" alt="Heart Icon">
-                            <p class="bold-text">${engagement.likesString}</p>
-                        </div>
-                        <div class="action-group">
-                            <img class="icon" src="images/icon-comment.png" alt="Comment Icon">
-                            <p class="bold-text">${engagement.commentsString}</p>
-                        </div>
-                        <div class="action-group">
-                            <img class="icon" src="images/icon-dm.png" alt="Share Icon">
-                            <p class="bold-text">${engagement.sharesString}</p>
-                        </div>
-                    </div>
-                    <p class="light-text caption"><span class="bold-text">${username}</span> ${postCaption}</p>
-                    <p class="small-text gray-text">${yearsAgo}</p>
-                </div>
-            </div>
-        </div>
-        `
-
-        main.innerHTML += postContent;
-    });
+  main.insertAdjacentHTML('beforeend', postContent);
+  addSentinel();
 }
 
 // Function to show the loading spinner
 function showLoadingSpinner() {
-    const main = document.querySelector("main");
-    main.innerHTML = '<div class="spinner"></div>';
+    let spinner = document.querySelector(".spinner");
+    if (!spinner) {
+        spinner = document.createElement('div');
+        spinner.className = 'spinner';
+        document.querySelector("main").appendChild(spinner);
+    }
+    spinner.style.display = 'block';
 }
 
 // Function to hide the loading spinner
 function hideLoadingSpinner() {
     const spinner = document.querySelector(".spinner");
     if (spinner) {
-        spinner.remove();
+        spinner.style.display = 'none';
     }
 }
 
+// Function to add sentinel
+function addSentinel() {
+    const main = document.querySelector("main");
+    let sentinel = document.querySelector('.sentinel');
+    if (sentinel) {
+        sentinel.remove();
+    }
+    sentinel = document.createElement('div');
+    sentinel.className = 'sentinel';
+    main.appendChild(sentinel);
+}
+
 // Function to fetch and render artworks
-function fetchAndRenderArtworks() {
+function fetchAndRenderArtworks(isInitialLoad = false) {
     showLoadingSpinner();
     fetchArtworkIds().then(artworks => {
         console.log('Fetched artworks:', artworks);
@@ -156,86 +125,81 @@ function fetchAndRenderArtworks() {
                 console.log('Fetched artwork info for all artworks:', artworkInfoArray);
                 hideLoadingSpinner();
 
-                console.log('Order before shuffling:', artworkInfoArray.map(a => a.id));
-
                 // Create a copy of the array to shuffle
                 const arrayToShuffle = [...artworkInfoArray];
 
-                // Shuffle and renderthe copy
+                // Shuffle and render the copy
                 shuffleArray(arrayToShuffle);
                 renderPosts(arrayToShuffle);
+
+                // Set up intersection observer after initial load
+                if (isInitialLoad) {
+                    setupInfiniteScroll();
+                } else {
+                    // Re-observe the sentinel for subsequent loads
+                    observeSentinel(window.infiniteScrollObserver);
+                }
             });
+        } else {
+            hideLoadingSpinner();
         }
     });
 }
 
-// Call fetchAndRenderArtworks when the page loads
-document.addEventListener('DOMContentLoaded', fetchAndRenderArtworks);
+// Function to set up infinite scroll
+function setupInfiniteScroll() {
+    const options = {
+        root: null,
+        rootMargin: '600px',
+        threshold: 0
+    };
+
+    window.infiniteScrollObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                window.infiniteScrollObserver.unobserve(entry.target);
+                fetchAndRenderArtworks();
+            }
+        });
+    }, options);
+
+    // Observe the sentinel element
+    observeSentinel(window.infiniteScrollObserver);
+}
+
+// Function to observe the sentinel
+function observeSentinel(observer) {
+    const sentinel = document.querySelector('.sentinel');
+    if (sentinel && observer) {
+        observer.observe(sentinel);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => fetchAndRenderArtworks(true));
 
 function fetchArtworkIds() {
-    const url = 'https://api.artic.edu/api/v1/artworks/search';
-    const body = JSON.stringify({
-      query: {
-        bool: {
-          must: [
-            {
-              term: {
-                has_not_been_viewed_much: false // Only non-obscure artworks
-              }
-            },
-            {
-              exists: {
-                field: "artist_id"
-              }
-            },
-            {
-              exists: {
-                field: "short_description"
-              }
-            },
-            {
-              terms: {
-                artwork_type_id: [1, 2] // 1 = painting, 2 = photograph
-              }
-            }
-          ]
-        }
-      },
-      fields: ["id", "title"],
-      limit: 12,
-      sort: [
-        {
-          "_script": {
-            "type": "number",
-            "script": "Math.random()",
-            "order": "asc"
-          }
-        }
-      ]
-    });
-  
-    return fetch(url, {
+  return fetch('https://api.artic.edu/api/v1/artworks/search', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: body
-    })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then(data => {
-      return data.data.map(artwork => ({
-        id: artwork.id,
-        title: artwork.title
-      }));
-    })
-    .catch(error => {
-      console.error('Error fetching artwork IDs:', error);
-    });
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+          query: {
+              bool: {
+                  must: [
+                      { term: { has_not_been_viewed_much: false } },
+                      { exists: { field: "artist_id" } },
+                      { exists: { field: "short_description" } },
+                      { terms: { artwork_type_id: [1, 2] } }
+                  ]
+              }
+          },
+          fields: ["id", "title"],
+          limit: 12,
+          sort: [{ "_script": { "type": "number", "script": "Math.random()", "order": "asc" } }]
+      })
+  })
+  .then(response => response.ok ? response.json() : Promise.reject(`HTTP error! status: ${response.status}`))
+  .then(data => data.data.map(({ id, title }) => ({ id, title })))
+  .catch(error => console.error('Error fetching artwork IDs:', error));
 }
   
 function fetchArtworkInfo(artworkIds) {

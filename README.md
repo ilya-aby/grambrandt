@@ -11,6 +11,7 @@ Initially built as an exercise for the [Scrimba](scrimba.com) front-end developm
 - Display posts featuring art from the Art Institute of Chicago
 - Synthesizes usernames & comments from artist names and curator descriptions of artwork
 - Responsive design for mobile & desktop
+- Infinite scroll with progressive fetching of more artwork from the API
 - Dynamically generated content from JavaScript post objects
 
 ## Technologies Used

@@ -93,13 +93,13 @@ body {
     padding-bottom: 5px;
 }
 
-a, a:visited {
+a, a:visited, a:focus {
     color: whitesmoke;
     text-decoration: none;
     margin: auto 0px;
 }
 
-a:hover, a:focus {
+a:hover, a:active {
     color: #0095f6;
 }
 
@@ -142,20 +142,24 @@ a:hover, a:focus {
     border-radius: 50%;
     border-top-color: #0095f6;
     animation: spin 1s ease-in-out infinite;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    margin: 20px auto;
+    display: none;
 }
 
 @keyframes spin {
-    to { transform: translate(-50%, -50%) rotate(360deg); }
+    to { transform: rotate(360deg); }
 }
 
 /* Ensure the main container has a relative position for the spinner */
 main {
     position: relative;
-    min-height: 200px; /* Adjust as needed */
+    min-height: 200px;
+}
+
+/* Sentinel for infinite scroll */
+.sentinel {
+    height: 1px;
+    width: 100%;
 }
 
 
