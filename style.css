@@ -94,14 +94,13 @@ body {
     padding-bottom: 5px;
 }
 
-a, a:visited, a:focus {
+.post-header a, .post-header a:visited, .post-header a:focus {
     color: whitesmoke;
     text-decoration: none;
-    margin: auto 0px;
 }
 
-a:hover, a:active {
-    color: #0095f6;
+.post-header a:hover, .post-header a:active {
+    opacity: 0.5;
 }
 
 .logo {

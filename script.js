@@ -1,3 +1,6 @@
+let artworkTypeId = 1 // 1 = Painting, 2 = Photograph
+let requireShortDescription = true
+
 // Helper to randomize the order of artworks from API
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
@@ -8,13 +11,24 @@ function shuffleArray(array) {
 
 // Transforms artist name into username, avatar initials, and random background color
 function createUserInfo(name) {
-  const cleanedName = name.replace(/['"-()]/g, '');
-  const words = cleanedName.split(' ');
-  const lastName = words.pop().toLowerCase();
-  const initials = words.map(word => word[0].toLowerCase()).join('');
-  const username = initials + lastName;
+  const cleanedName = name.replace(/['"\-()]/g, '').trim();
+  const words = cleanedName.split(' ').filter(word => word.length > 0);
   
-  const avatarInitials = (words[0][0] + lastName[0]).toUpperCase();
+  let username, avatarInitials; 
+  
+  if (words.length === 0) {
+    username = 'Unknown';
+    avatarInitials = 'UN';
+  } else if (words.length === 1) {
+    username = words[0].toLowerCase();
+    avatarInitials = words[0].slice(0, 2).toUpperCase();
+  } else {
+    const lastName = words.pop().toLowerCase();
+    const initials = words.map(word => word[0].toLowerCase()).join('');
+    username = initials + lastName;
+    avatarInitials = (words[0][0] + lastName[0]).toUpperCase();
+  }
+  
   const backgroundColor = `hsl(${Math.floor(Math.random() * 360)}, 60%, 30%)`;
 
   return { username, avatarInitials, backgroundColor };
@@ -39,7 +53,7 @@ function renderPosts(artworks) {
   const main = document.querySelector("main");
   const postContent = artworks.map(artwork => {
       const { username, avatarInitials, backgroundColor } = createUserInfo(artwork.artist_title);
-      const postCaption = `<em>${artwork.title}</em>, ${artwork.medium_display}. ${artwork.short_description}`;
+      const postCaption = `<em>${artwork.title}</em>, ${artwork.medium_display.replace(/^\w/, c => c.toLowerCase())}. ${artwork.short_description}`;
       const yearsAgo = createYearsAgoString(artwork.date_start, artwork.date_end);
       const engagement = createRandomEngagement();
 
@@ -124,36 +138,31 @@ function fetchAndRenderArtworks(isInitialLoad = false) {
   if (isInitialLoad) {
     showLoadingSpinner();
   }
-  fetchArtworkIds().then(artworks => {
-      console.log('Fetched artwork IDs:', artworks);
-      if (artworks.length > 0) {
-          const artworkIds = artworks.map(artwork => artwork.id);
-          fetchArtworkInfo(artworkIds).then(artworkInfoArray => {
-              console.log('Fetched artwork metadata:', artworkInfoArray);
-              hideLoadingSpinner();
+  fetchArtwork().then(artworks => {
+    console.log('Fetched artworks:', artworks);
+    if (artworks.length > 0) {
+      hideLoadingSpinner();
 
-              // Create a copy of the array to shuffle
-              const arrayToShuffle = [...artworkInfoArray];
+      // Create a copy of the array to shuffle
+      const arrayToShuffle = [...artworks];
 
-              // Shuffle and render the copy
-              shuffleArray(arrayToShuffle);
-              renderPosts(arrayToShuffle);
+      // Shuffle and render the copy
+      shuffleArray(arrayToShuffle);
+      renderPosts(arrayToShuffle);
 
-              // Set up intersection observer after initial load
-              if (isInitialLoad) {
-                  setupInfiniteScroll();
-              } else {
-                  // Re-observe the sentinel for subsequent loads
-                  observeSentinel(window.infiniteScrollObserver);
-              }
-          });
+      // Set up intersection observer after initial load
+      if (isInitialLoad) {
+        setupInfiniteScroll();
       } else {
-          hideLoadingSpinner();
+        // Re-observe the sentinel for subsequent loads
+        observeSentinel(window.infiniteScrollObserver);
       }
+    } else {
+      hideLoadingSpinner();
+    }
   });
 }
 
-// Function to set up infinite scroll
 function setupInfiniteScroll() {
     const options = {
         root: null,
@@ -174,7 +183,6 @@ function setupInfiniteScroll() {
     observeSentinel(window.infiniteScrollObserver);
 }
 
-// Function to observe the sentinel
 function observeSentinel(observer) {
     const sentinel = document.querySelector('.sentinel');
     if (sentinel && observer) {
@@ -184,92 +192,70 @@ function observeSentinel(observer) {
 
 document.addEventListener('DOMContentLoaded', () => fetchAndRenderArtworks(true));
 
-function fetchArtworkIds() {
+function fetchArtwork() {
+  const fields = [
+    'id', 'artist_title', 'artist_id', 'date_start', 'date_end',
+    'date_display', 'medium_display', 'artwork_type_title',
+    'place_of_origin', 'short_description', 'title', 'image_id'
+  ];
+
+  const query = {
+    bool: {
+      must: [
+        { term: { has_not_been_viewed_much: false } },
+        { exists: { field: "artist_id" } },
+        { exists: { field: "image_id" } },
+        { term: { artwork_type_id: artworkTypeId } }
+      ]
+    }
+  };
+
+  if (requireShortDescription) {
+    query.bool.must.push({ exists: { field: "short_description" } });
+  }
+
   return fetch('https://api.artic.edu/api/v1/artworks/search', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-          query: {
-              bool: {
-                  must: [
-                      { term: { has_not_been_viewed_much: false } },
-                      { exists: { field: "artist_id" } },
-                      { exists: { field: "image_id" } },
-                      { exists: { field: "short_description" } },
-                      { terms: { artwork_type_id: [1, 2] } }
-                  ]
-              }
-          },
-          fields: ["id", "title"],
-          limit: 12,
-          sort: [{ "_script": { "type": "number", "script": "Math.random()", "order": "asc" } }]
-      })
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      query: query,
+      fields: fields,
+      limit: 12,
+      sort: [{ "_script": { "type": "number", "script": "Math.random()", "order": "asc" } }]
+    })
   })
   .then(response => response.ok ? response.json() : Promise.reject(`HTTP error! status: ${response.status}`))
-  .then(data => data.data.map(({ id, title }) => ({ id, title })))
-  .catch(error => console.error('Error fetching artwork IDs:', error));
-}
-  
-function fetchArtworkInfo(artworkIds) {
-    const fields = [
-        'id', 
-        'artist_title', 
-        'artist_id',
-        'date_start',
-        'date_end',
-        'date_display', 
-        'medium_display',
-        'artwork_type_title',
-        'place_of_origin', 
-        'short_description',
-        'title',
-        'image_id'
-    ];
-    const fieldsParam = fields.join(',');
-    const idsParam = artworkIds.join(',');
-    const url = `https://api.artic.edu/api/v1/artworks?ids=${idsParam}&fields=${fieldsParam}`;
-    
-    return fetch(url)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            const artworks = data.data;
-            const iiifUrl = data.config.iiif_url;
-            const webUrl = data.config.website_url;
-            
-            // Construct the image URL for each artwork if image_id is available
-            return artworks.map(artwork => {
-                if (artwork.image_id) {
-                    artwork.image_url = `${iiifUrl}/${artwork.image_id}/full/843,/0/default.jpg`;
-                    artwork.web_url = `${webUrl}/artworks/${artwork.id}`;
-                }
-                artwork.place_of_origin = artwork.place_of_origin || ''; // Handle missing place_of_origin
-                return artwork;
-            });
-        })
-        .catch(error => {
-            console.error('Error fetching artwork info:', error);
-        });
+  .then(data => {
+    console.log('API response:', data);
+    const iiifUrl = data.config.iiif_url;
+    const webUrl = data.config.website_url;
+    return data.data.map(artwork => ({
+      ...artwork,
+      image_url: artwork.image_id ? `${iiifUrl}/${artwork.image_id}/full/843,/0/default.jpg` : null,
+      web_url: `${webUrl}/artworks/${artwork.id}`,
+      place_of_origin: artwork.place_of_origin ?? '',
+      short_description: artwork.short_description ?? ''
+    }));
+  })
+  .catch(error => {
+    console.error('Error fetching artwork:', error);
+    return [];
+  });
 }
 
-// Add these new functions at the end of the file
-
+// Open modal with Perplexity links
 function openModal(title, artist) {
     const decodedTitle = decodeURIComponent(title);
     const decodedArtist = decodeURIComponent(artist);
-    const perplexityUrlWork = `https://www.perplexity.ai/search/new?q=${encodeURIComponent(`Tell me about ${decodedTitle} by ${decodedArtist}`)}`;
-    const perplexityUrlArtist = `https://www.perplexity.ai/search/new?q=${encodeURIComponent(`Tell me about the artist ${decodedArtist}`)}`;
+    const perplexityUrlWork = `https://www.perplexity.ai/search?s=o&q=${encodeURIComponent(`Tell me about ${decodedTitle} by ${decodedArtist}`)}`;
+    const perplexityUrlArtist = `https://www.perplexity.ai/search?s=o&q=${encodeURIComponent(`Tell me about the artist ${decodedArtist}`)}`;
     
     const modal = document.createElement('div');
     modal.className = 'modal';
     modal.innerHTML = `
         <div class="modal-content">
-            <a href="${perplexityUrlWork}" target="_blank" rel="noopener noreferrer">Ask Perplexity about this work</a>
-            <a href="${perplexityUrlArtist}" target="_blank" rel="noopener noreferrer">Ask Perplexity about this artist</a>
+            <a href="${perplexityUrlWork}" target="_blank" rel="noopener">Ask Perplexity about this work</a>
+            <a href="${perplexityUrlArtist}" target="_blank" rel="noopener">Ask Perplexity about this artist</a>
         </div>
     `;
     
