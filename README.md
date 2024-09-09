@@ -31,3 +31,9 @@ Posts are rendered dynamically in javascript using a template literal in script.
 
 1. Can download and open `index.html` directly. There's no back-end
 2. To modify to show your own choice of art, you can create your own artworks JSON object in lieu of the AIC API call
+
+## AIC API Resources
+
+* API docs: https://api.artic.edu/docs/
+* AIC web URL: https://www.artic.edu/artworks/27992/a-sunday-on-la-grande-jatte-1884
+* Equivalent API detail call: https://api.artic.edu/api/v1/artworks/27992

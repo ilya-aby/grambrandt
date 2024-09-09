@@ -1,218 +1,226 @@
 body {
-    margin: 0;
-    background-color: #121212;
-    color: whitesmoke;
-    font-family: 'Open Sans', sans-serif;
+  margin: 0;
+  background-color: #121212;
+  color: whitesmoke;
+  font-family: 'Open Sans', sans-serif;
 }
 
 /* Typography */
 
 .bold-text {
-    font-weight: 700;
-    font-size: 0.875rem;
+  font-weight: 700;
+  font-size: 0.875rem;
 }
 
 .light-text {
-    font-weight: 300;
-    font-size: 0.875rem;
+  font-weight: 300;
+  font-size: 0.875rem;
 }
 
 .small-text {
-    font-weight: 300;
-    font-size: 0.75rem;
+  font-weight: 300;
+  font-size: 0.75rem;
 }
 
 .gray-text {
-    color: #a8a8a8;
+  color: #a8a8a8;
 }
 
 /* Layout */
 
 .container {
-    width: 100%;
-    max-width: 470px;
-    margin: 0 auto;
+  width: 100%;
+  max-width: 470px;
+  margin: 0 auto;
 }
 
 .title-bar {
-    display: flex;
-    box-sizing: border-box;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0px 16px;
-    border-bottom: 1px solid #262626;
-    height: 67px;
+  display: flex;
+  box-sizing: border-box;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0px 16px;
+  border-bottom: 1px solid #262626;
+  height: 67px;
 }
 
 .post-header {
-    display: flex;
-    box-sizing: border-box;
-    align-items: center;
-    padding: 10px;
-    height: 55px;
+  display: flex;
+  box-sizing: border-box;
+  align-items: center;
+  padding: 10px;
+  height: 55px;
 }
 
 .post-header p {
-    margin: auto 0px;
+  margin: auto 0px;
 }
 
 .user-info {
-    margin-left: 7px;
-    flex-grow: 1;
+  margin-left: 7px;
+  flex-grow: 1;
 }
 
 .post-footer {
-    display: flex;
-    box-sizing: border-box;
-    flex-direction: column;
-    justify-content: flex-start;
-    padding: 15px 10px;
-    border-bottom: 1px solid #262626;
+  display: flex;
+  box-sizing: border-box;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 15px 10px;
+  border-bottom: 1px solid #262626;
 }
 
 .post-footer p {
-    margin: 0;
+  margin: 0;
 }
 
 .post-footer .actions {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
 }
 
 .action-group {
-    display: flex;
-    align-items: center;
-    margin-right: 16px;
+  display: flex;
+  align-items: center;
+  margin-right: 16px;
 }
 
 .action-group p {
-    margin-left: 7px;
+  margin-left: 7px;
 }
 
 .caption {
-    padding-bottom: 5px;
+  padding-bottom: 5px;
 }
 
-.post-header a, .post-header a:visited, .post-header a:focus {
-    color: whitesmoke;
-    text-decoration: none;
+.post-header a,
+.post-header a:visited,
+.post-header a:focus {
+  color: whitesmoke;
+  text-decoration: none;
 }
 
-.post-header a:hover, .post-header a:active {
-    opacity: 0.5;
+.post-header a:hover,
+.post-header a:active {
+  opacity: 0.5;
 }
 
 .logo {
-    height: 40px;
-    width: auto;
-    filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(93deg) brightness(103%) contrast(103%);
+  height: 40px;
+  width: auto;
+  filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(93deg) brightness(103%) contrast(103%);
 }
 
 .user-avatar {
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: 700;
-    color: #fff;
-    flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
 }
 
 .post-image {
-    width: 100%;
+  width: 100%;
 }
 
 .icon {
-    width: 23px;
-    filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(93deg) brightness(103%) contrast(103%);
+  width: 23px;
+  filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(93deg) brightness(103%) contrast(103%);
 }
 
 .icon:hover {
-    opacity: 0.5;
+  opacity: 0.5;
 }
 
 /* Spinner */
 .spinner {
-    width: 50px;
-    height: 50px;
-    border: 3px solid rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    border-top-color: #0095f6;
-    animation: spin 1s ease-in-out infinite;
-    margin: 20px auto;
-    display: none;
+  width: 50px;
+  height: 50px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #0095f6;
+  animation: spin 1s ease-in-out infinite;
+  margin: 20px auto;
+  display: none;
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Ensure the main container has a relative position for the spinner */
 main {
-    position: relative;
-    min-height: 200px;
+  position: relative;
+  min-height: 200px;
 }
 
 /* Sentinel for infinite scroll */
 .sentinel {
-    height: 1px;
-    width: 100%;
+  height: 1px;
+  width: 100%;
 }
 
 /* Ellipsis button */
 .ellipsis-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 5px;
-    margin-left: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  margin-left: auto;
 }
 
 .ellipsis-button:hover {
-    opacity: 0.7;
+  opacity: 0.7;
 }
 
 /* Modal styles */
 .modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 
 .modal-content {
-    background-color: #262626;
-    border-radius: 8px;
-    overflow: hidden;
-    width: 90%;
-    max-width: 300px;
+  background-color: #262626;
+  border-radius: 8px;
+  overflow: hidden;
+  width: 90%;
+  max-width: 300px;
 }
 
-.modal-content a, .modal-content a:visited, .modal-content a:focus {
-    color: whitesmoke;
-    text-decoration: none;
-    padding: 15px;
-    display: block;
-    background-color: #363636;
-    transition: background-color 0.3s ease;
-    text-align: center;
-    font-size: 0.875rem;
+.modal-content a,
+.modal-content a:visited,
+.modal-content a:focus {
+  color: whitesmoke;
+  text-decoration: none;
+  padding: 15px;
+  display: block;
+  background-color: #363636;
+  transition: background-color 0.3s ease;
+  text-align: center;
+  font-size: 0.875rem;
 }
 
 .modal-content a:first-child {
-    border-bottom: 1px solid #4a4a4a;
+  border-bottom: 1px solid #4a4a4a;
 }
 
-.modal-content a:hover, .modal-content a:active {
-    background-color: #0095f6;
-    color: white;
+.modal-content a:hover,
+.modal-content a:active {
+  background-color: #0095f6;
+  color: white;
 }
