@@ -228,7 +228,10 @@ function fetchArtwork() {
 
   return fetch('https://api.artic.edu/api/v1/artworks/search', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 
+      'Content-Type': 'application/json',
+      'AIC-User-Agent': 'grambrandt.com'
+    },
     body: JSON.stringify({
       query: query,
       fields: fields,
