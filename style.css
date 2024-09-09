@@ -198,7 +198,7 @@ main {
     max-width: 300px;
 }
 
-.modal-content a {
+.modal-content a, .modal-content a:visited, .modal-content a:focus {
     color: whitesmoke;
     text-decoration: none;
     padding: 15px;

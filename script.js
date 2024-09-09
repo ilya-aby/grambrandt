@@ -261,8 +261,8 @@ function fetchArtworkInfo(artworkIds) {
 function openModal(title, artist) {
     const decodedTitle = decodeURIComponent(title);
     const decodedArtist = decodeURIComponent(artist);
-    const perplexityUrlWork = `https://www.perplexity.ai/search?s=o&q=${encodeURIComponent(`Tell me about ${decodedTitle} by ${decodedArtist}`)}`;
-    const perplexityUrlArtist = `https://www.perplexity.ai/search?s=o&q=${encodeURIComponent(`Tell me about the artist ${decodedArtist}`)}`;
+    const perplexityUrlWork = `https://www.perplexity.ai/search/new?q=${encodeURIComponent(`Tell me about ${decodedTitle} by ${decodedArtist}`)}`;
+    const perplexityUrlArtist = `https://www.perplexity.ai/search/new?q=${encodeURIComponent(`Tell me about the artist ${decodedArtist}`)}`;
     
     const modal = document.createElement('div');
     modal.className = 'modal';
