@@ -54,6 +54,13 @@ function renderPosts(artworks) {
                       <a class="bold-text" href="https://www.artic.edu/artists/${artwork.artist_id}" target="_blank" rel="noopener noreferrer">${artwork.artist_title}</a>
                       <p class="small-text">${artwork.place_of_origin}</p>
                   </div>
+                  <button class="ellipsis-button" onclick="openModal('${encodeURIComponent(artwork.title)}', '${encodeURIComponent(artwork.artist_title)}')">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <circle cx="3" cy="8" r="1.5" fill="white"/>
+                          <circle cx="8" cy="8" r="1.5" fill="white"/>
+                          <circle cx="13" cy="8" r="1.5" fill="white"/>
+                      </svg>
+                  </button>
               </div>
               <img class="post-image" src="${artwork.image_url}" alt="Post Image">
               <div class="post-footer">
@@ -187,6 +194,7 @@ function fetchArtworkIds() {
                   must: [
                       { term: { has_not_been_viewed_much: false } },
                       { exists: { field: "artist_id" } },
+                      { exists: { field: "image_id" } },
                       { exists: { field: "short_description" } },
                       { terms: { artwork_type_id: [1, 2] } }
                   ]
@@ -246,4 +254,34 @@ function fetchArtworkInfo(artworkIds) {
         .catch(error => {
             console.error('Error fetching artwork info:', error);
         });
+}
+
+// Add these new functions at the end of the file
+
+function openModal(title, artist) {
+    const decodedTitle = decodeURIComponent(title);
+    const decodedArtist = decodeURIComponent(artist);
+    const perplexityUrlWork = `https://www.perplexity.ai/search?s=o&q=${encodeURIComponent(`Tell me about ${decodedTitle} by ${decodedArtist}`)}`;
+    const perplexityUrlArtist = `https://www.perplexity.ai/search?s=o&q=${encodeURIComponent(`Tell me about the artist ${decodedArtist}`)}`;
+    
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <a href="${perplexityUrlWork}" target="_blank" rel="noopener noreferrer">Ask Perplexity about this work</a>
+            <a href="${perplexityUrlArtist}" target="_blank" rel="noopener noreferrer">Ask Perplexity about this artist</a>
+        </div>
+    `;
+    
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeModal(modal);
+        }
+    });
+    
+    document.body.appendChild(modal);
+}
+
+function closeModal(modal) {
+    modal.remove();
 }

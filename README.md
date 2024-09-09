@@ -13,6 +13,7 @@ Initially built as an exercise for the [Scrimba](scrimba.com) front-end developm
 - Responsive design for mobile & desktop
 - Infinite scroll with progressive fetching of more artwork from the API
 - Dynamically generated content from JavaScript post objects
+- "Ask Perplexity" about the artist & work
 
 ## Technologies Used
 

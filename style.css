@@ -58,6 +58,7 @@ body {
 
 .user-info {
     margin-left: 7px;
+    flex-grow: 1;
 }
 
 .post-footer {
@@ -162,5 +163,57 @@ main {
     width: 100%;
 }
 
+/* Ellipsis button */
+.ellipsis-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    margin-left: auto;
+}
 
+.ellipsis-button:hover {
+    opacity: 0.7;
+}
 
+/* Modal styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: #262626;
+    border-radius: 8px;
+    overflow: hidden;
+    width: 90%;
+    max-width: 300px;
+}
+
+.modal-content a {
+    color: whitesmoke;
+    text-decoration: none;
+    padding: 15px;
+    display: block;
+    background-color: #363636;
+    transition: background-color 0.3s ease;
+    text-align: center;
+    font-size: 0.875rem;
+}
+
+.modal-content a:first-child {
+    border-bottom: 1px solid #4a4a4a;
+}
+
+.modal-content a:hover, .modal-content a:active {
+    background-color: #0095f6;
+    color: white;
+}
