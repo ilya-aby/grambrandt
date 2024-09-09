@@ -69,7 +69,7 @@ function renderPosts(artworks) {
               <a class="bold-text" href="https://www.artic.edu/artists/${artwork.artist_id}" target="_blank" rel="noopener">${artwork.artist_title}</a>
               <p class="small-text">${artwork.place_of_origin}</p>
             </div>
-            <button class="ellipsis-button" data-title="${artwork.title}" data-artist="${artwork.artist_title}">
+            <button class="ellipsis-button" data-title="${artwork.title}" data-artist="${artwork.artist_title}" aria-label="More information">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="3" cy="8" r="1.5" fill="white"/>
                 <circle cx="8" cy="8" r="1.5" fill="white"/>
