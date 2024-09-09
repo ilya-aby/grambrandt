@@ -1,6 +1,9 @@
 let artworkTypeId = 1 // 1 = Painting, 2 = Photograph
 let requireShortDescription = true
 
+// Add this at the top of the file with other global variables
+let seenArtworkIds = [];
+
 // Helper to randomize the order of artworks from API
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
@@ -68,7 +71,7 @@ function renderPosts(artworks) {
                       <a class="bold-text" href="https://www.artic.edu/artists/${artwork.artist_id}" target="_blank" rel="noopener noreferrer">${artwork.artist_title}</a>
                       <p class="small-text">${artwork.place_of_origin}</p>
                   </div>
-                  <button class="ellipsis-button" onclick="openModal('${encodeURIComponent(artwork.title)}', '${encodeURIComponent(artwork.artist_title)}')">
+                  <button class="ellipsis-button" data-title="${artwork.title}" data-artist="${artwork.artist_title}">
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <circle cx="3" cy="8" r="1.5" fill="white"/>
                           <circle cx="8" cy="8" r="1.5" fill="white"/>
@@ -102,6 +105,15 @@ function renderPosts(artworks) {
 
   main.insertAdjacentHTML('beforeend', postContent);
   addSentinel();
+
+  // Add event listeners to the new ellipsis buttons
+  document.querySelectorAll('.ellipsis-button').forEach(button => {
+    button.addEventListener('click', function() {
+      const title = this.getAttribute('data-title');
+      const artist = this.getAttribute('data-artist');
+      openModal(title, artist);
+    });
+  });
 }
 
 function showLoadingSpinner() {
@@ -139,7 +151,6 @@ function fetchAndRenderArtworks(isInitialLoad = false) {
     showLoadingSpinner();
   }
   fetchArtwork().then(artworks => {
-    console.log('Fetched artworks:', artworks);
     if (artworks.length > 0) {
       hideLoadingSpinner();
 
@@ -206,6 +217,9 @@ function fetchArtwork() {
         { exists: { field: "artist_id" } },
         { exists: { field: "image_id" } },
         { term: { artwork_type_id: artworkTypeId } }
+      ],
+      must_not: [
+        { terms: { id: seenArtworkIds } }
       ]
     }
   };
@@ -229,13 +243,17 @@ function fetchArtwork() {
     console.log('API response:', data);
     const iiifUrl = data.config.iiif_url;
     const webUrl = data.config.website_url;
-    return data.data.map(artwork => ({
-      ...artwork,
-      image_url: artwork.image_id ? `${iiifUrl}/${artwork.image_id}/full/843,/0/default.jpg` : null,
-      web_url: `${webUrl}/artworks/${artwork.id}`,
-      place_of_origin: artwork.place_of_origin ?? '',
-      short_description: artwork.short_description ?? ''
-    }));
+    const newArtworks = data.data.map(artwork => {
+      seenArtworkIds.push(artwork.id); // Add the ID to seenArtworkIds
+      return {
+        ...artwork,
+        image_url: artwork.image_id ? `${iiifUrl}/${artwork.image_id}/full/843,/0/default.jpg` : null,
+        web_url: `${webUrl}/artworks/${artwork.id}`,
+        place_of_origin: artwork.place_of_origin ?? '',
+        short_description: artwork.short_description ?? ''
+      };
+    });
+    return newArtworks;
   })
   .catch(error => {
     console.error('Error fetching artwork:', error);
@@ -245,10 +263,8 @@ function fetchArtwork() {
 
 // Open modal with Perplexity links
 function openModal(title, artist) {
-    const decodedTitle = decodeURIComponent(title);
-    const decodedArtist = decodeURIComponent(artist);
-    const perplexityUrlWork = `https://www.perplexity.ai/search?s=o&q=${encodeURIComponent(`Tell me about ${decodedTitle} by ${decodedArtist}`)}`;
-    const perplexityUrlArtist = `https://www.perplexity.ai/search?s=o&q=${encodeURIComponent(`Tell me about the artist ${decodedArtist}`)}`;
+    const perplexityUrlWork = `https://www.perplexity.ai/search?s=o&q=${encodeURIComponent(`Tell me about "${title}" by ${artist}`)}`;
+    const perplexityUrlArtist = `https://www.perplexity.ai/search?s=o&q=${encodeURIComponent(`Tell me about the artist ${artist}`)}`;
     
     const modal = document.createElement('div');
     modal.className = 'modal';
