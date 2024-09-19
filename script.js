@@ -2,6 +2,16 @@ let artworkTypeId = 1 // 1 = Painting, 2 = Photograph
 let requireShortDescription = true
 let seenArtworkIds = [];
 
+// Add event listener to handle clicks on ellipsis buttons for a post
+document.addEventListener('click', function (event) {
+  const button = event.target.closest('.ellipsis-button');
+  if (button) {
+    const title = button.getAttribute('data-title');
+    const artist = button.getAttribute('data-artist');
+    openModal(title, artist);
+  }
+});
+
 // Helper to randomize the order of artworks from API
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
@@ -103,15 +113,6 @@ function renderPosts(artworks) {
 
   main.insertAdjacentHTML('beforeend', postContent);
   addSentinel();
-
-  // Add event listeners to the new ellipsis buttons
-  document.querySelectorAll('.ellipsis-button').forEach(button => {
-    button.addEventListener('click', function () {
-      const title = this.getAttribute('data-title');
-      const artist = this.getAttribute('data-artist');
-      openModal(title, artist);
-    });
-  });
 }
 
 function showLoadingSpinner() {
@@ -276,8 +277,9 @@ function openModal(title, artist) {
         </div>
     `;
 
+  // Close modal if clicked on modal or any link inside modal
   modal.addEventListener('click', (e) => {
-    if (e.target === modal) {
+    if (e.target === modal || e.target.tagName === 'A') {
       closeModal(modal);
     }
   });
