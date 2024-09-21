@@ -1,6 +1,5 @@
-let artworkTypeId = 1 // 1 = Painting, 2 = Photograph
-let requireShortDescription = true
-let seenArtworkIds = [];
+import { fetchArtwork } from './api.js';
+import { config } from './config.js';
 
 // Event listener to handle clicks on ellipsis buttons and action buttons for a post
 document.addEventListener('click', function (event) {
@@ -196,11 +195,12 @@ function addSentinel() {
 }
 
 // Function to fetch and render artworks
-function fetchAndRenderArtworks(isInitialLoad = false) {
+async function fetchAndRenderArtworks(isInitialLoad = false) {
   if (isInitialLoad) {
     showLoadingSpinner();
   }
-  fetchArtwork().then(artworks => {
+  try {
+    const artworks = await fetchArtwork();
     if (artworks.length > 0) {
       hideLoadingSpinner();
 
@@ -221,7 +221,10 @@ function fetchAndRenderArtworks(isInitialLoad = false) {
     } else {
       hideLoadingSpinner();
     }
-  });
+  } catch (error) {
+    console.error('Error in fetchAndRenderArtworks:', error);
+    hideLoadingSpinner();
+  }
 }
 
 function setupInfiniteScroll() {
@@ -252,79 +255,6 @@ function observeSentinel(observer) {
 }
 
 document.addEventListener('DOMContentLoaded', () => fetchAndRenderArtworks(true));
-
-function fetchArtwork() {
-  const fields = [
-    'id', 'artist_title', 'artist_id', 'date_start', 'date_end',
-    'date_display', 'medium_display', 'artwork_type_title',
-    'place_of_origin', 'short_description', 'title', 'image_id',
-    'dimensions_detail' // Added this field
-  ];
-
-  const query = {
-    bool: {
-      must: [
-        { term: { has_not_been_viewed_much: false } },
-        { exists: { field: "artist_id" } },
-        { exists: { field: "image_id" } },
-        { term: { artwork_type_id: artworkTypeId } }
-      ],
-      must_not: [
-        { terms: { id: seenArtworkIds } }
-      ]
-    }
-  };
-
-  if (requireShortDescription) {
-    query.bool.must.push({ exists: { field: "short_description" } });
-  }
-
-  return fetch('https://api.artic.edu/api/v1/artworks/search', {
-    method: 'POST',
-    headers: { 
-      'Content-Type': 'application/json',
-      'AIC-User-Agent': 'grambrandt.com'
-    },
-    body: JSON.stringify({
-      query: query,
-      fields: fields,
-      limit: 12,
-      sort: [{ "_script": { "type": "number", "script": "Math.random()", "order": "asc" } }]
-    })
-  })
-    .then(response => response.ok ? response.json() : Promise.reject(`HTTP error! status: ${response.status}`))
-    .then(data => {
-      const iiifUrl = data.config.iiif_url;
-      const webUrl = data.config.website_url;
-      const newArtworks = data.data.filter(artwork => {
-        // Always add the ID to seenArtworkIds, regardless of whether we keep or exclude the artwork
-        seenArtworkIds.push(artwork.id);
-
-        // Check dimensions and exclude if height is more than 2.5 times the width
-        // Extremely tall paintings break the layout and cause 403 errors from the API
-        if (artwork.dimensions_detail && artwork.dimensions_detail.length > 0) {
-          const { height, width } = artwork.dimensions_detail[0];
-          if (height && width && height > 2.5 * width) {
-            return false;
-          }
-        }
-        return true;
-      }).map(artwork => {
-        return {
-          ...artwork,
-          image_url: artwork.image_id ? `${iiifUrl}/${artwork.image_id}/full/843,/0/default.jpg` : null,
-          web_url: `${webUrl}/artworks/${artwork.id}`,
-          place_of_origin: artwork.place_of_origin ?? '',
-          short_description: artwork.short_description ?? ''
-        };
-      });
-      return newArtworks;
-    })
-    .catch(error => {
-      console.error('Error fetching artwork:', error);
-      return [];
-    });
-}
 
 // Open modal with Perplexity links
 function openModal(title, artist) {
