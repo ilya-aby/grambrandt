@@ -138,6 +138,10 @@ body {
   cursor: pointer;
 }
 
+.icon.liked {
+  color: #ff3040;
+}
+
 /* Spinner */
 .spinner {
   width: 50px;
