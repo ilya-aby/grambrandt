@@ -142,6 +142,10 @@ body {
   color: #ff3040;
 }
 
+.icon.liked:hover {
+  opacity: 1;
+}
+
 /* Spinner */
 .spinner {
   width: 50px;

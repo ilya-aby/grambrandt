@@ -2,7 +2,7 @@ let artworkTypeId = 1 // 1 = Painting, 2 = Photograph
 let requireShortDescription = true
 let seenArtworkIds = [];
 
-// Add event listener to handle clicks on ellipsis buttons and like buttons for a post
+// Event listener to handle clicks on ellipsis buttons and action buttons for a post
 document.addEventListener('click', function (event) {
   const ellipsisButton = event.target.closest('.ellipsis-button');
   if (ellipsisButton) {
@@ -12,6 +12,11 @@ document.addEventListener('click', function (event) {
   const likeButton = event.target.closest('[data-like-id]');
   if (likeButton) {
     handleLikeClick(likeButton);
+  }
+
+  const shareButton = event.target.closest('[data-share-info]');
+  if (shareButton) {
+    handleShareClick(shareButton);
   }
 });
 
@@ -23,12 +28,24 @@ function handleLikeClick(likeButton) {
       // Currently liked, perform unlike
       likeCount.textContent = (parseInt(likeCount.textContent) - 1).toString();
       likeButton.classList.remove('liked');
-      console.log('Unliked artwork ID:', artworkId);
     } else {
       // Currently not liked, perform like
       likeCount.textContent = (parseInt(likeCount.textContent) + 1).toString();
       likeButton.classList.add('liked');
-      console.log('Liked artwork ID:', artworkId);
+  } 
+}
+
+function handleShareClick(shareButton) {
+  const shareData = JSON.parse(shareButton.getAttribute('data-share-info'));
+  const { url, title, artist } = shareData;
+  
+  if (navigator.share) {
+    navigator.share({
+      title: `"${title}" by ${artist}, found on Grambrandt`,
+      url: url
+    }).catch(() => {
+      // Silently handle any errors
+    });
   } 
 }
 
@@ -125,7 +142,11 @@ function renderPosts(artworks) {
                 <p class="bold-text">${engagement.commentsString}</p>
               </div>
               <div class="action-group">
-                <svg class="icon" fill="whitesmoke" stroke="none" aria-label="Share" role="img" viewBox="0 0 24 24">
+                <svg class="icon" data-share-info='${JSON.stringify({
+                  url: artwork.web_url,
+                  title: artwork.title,
+                  artist: artwork.artist_title
+                })}' fill="whitesmoke" stroke="none" aria-label="Share" role="img" viewBox="0 0 24 24">
                   <title>Share</title>
                   <line fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="2" x1="22" x2="9.218" y1="3" y2="10.083"></line>
                   <polygon fill="none" points="11.698 20.334 22 3.001 2 3.001 9.218 10.084 11.698 20.334" stroke="currentColor" stroke-linejoin="round" stroke-width="2"></polygon>
@@ -273,7 +294,6 @@ function fetchArtwork() {
   })
     .then(response => response.ok ? response.json() : Promise.reject(`HTTP error! status: ${response.status}`))
     .then(data => {
-      console.log('API response:', data);
       const iiifUrl = data.config.iiif_url;
       const webUrl = data.config.website_url;
       const newArtworks = data.data.filter(artwork => {
