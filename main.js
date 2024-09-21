@@ -123,7 +123,7 @@ function renderPosts(artworks) {
               </svg>
             </button>
           </div>
-          <img class="post-image" src="${artwork.image_url}" alt="Post Image">
+          <img class="post-image" src="${artwork.image_url}" alt="${artwork.title} by ${artwork.artist_title}" onerror="this.onerror=null; this.src='/images/placeholder.jpg';">
           <div class="post-footer">
             <div class="actions">
               <div class="action-group">
