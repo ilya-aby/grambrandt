@@ -14,7 +14,7 @@ export async function fetchArtwork() {
         { term: { has_not_been_viewed_much: config.showObscure } },
         { exists: { field: "artist_id" } },
         { exists: { field: "image_id" } },
-        { term: { artwork_type_id: config.artworkTypeId } }
+        { terms: { artwork_type_id: config.artworkTypeIds } }
       ],
       must_not: [
         { terms: { id: config.seenArtworkIds } }
