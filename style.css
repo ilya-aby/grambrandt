@@ -44,6 +44,22 @@ body {
   height: 67px;
 }
 
+.user-actions {
+  display: flex;
+  align-items: center;
+}
+
+.config-button {
+  background: none;
+  border: none;
+  padding: 0;
+  color: whitesmoke;
+  width: 24px;
+  height: 24px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
 .post-header {
   display: flex;
   box-sizing: border-box;
@@ -212,6 +228,7 @@ main {
 }
 
 .modal-content a,
+.modal-content p,
 .modal-content a:visited,
 .modal-content a:focus {
   color: whitesmoke;
@@ -224,6 +241,11 @@ main {
   font-size: 0.875rem;
 }
 
+.modal-content p {
+  margin: 0;
+  border-bottom: 1px solid #4a4a4a;
+}
+
 .modal-content a:first-child {
   border-bottom: 1px solid #4a4a4a;
 }
@@ -232,4 +254,16 @@ main {
 .modal-content a:active {
   background-color: #0095f6;
   color: white;
+}
+
+.modal-select {
+  width: 100%;
+  padding: 15px;
+  margin-bottom: 0px;
+  border-bottom: 1px solid #4a4a4a;
+  /* border-radius: 4px; */ */
+  background-color: #363636;
+  color: whitesmoke;
+  font-size: 0.875rem;
+  text-align: center;
 }

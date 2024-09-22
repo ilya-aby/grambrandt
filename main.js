@@ -1,11 +1,12 @@
 import { fetchArtwork } from './api.js';
 import { config } from './config.js';
+import { createModal } from './modal.js';
 
 // Event listener to handle clicks on ellipsis buttons and action buttons for a post
 document.addEventListener('click', function (event) {
   const ellipsisButton = event.target.closest('.ellipsis-button');
   if (ellipsisButton) {
-    openModal(ellipsisButton.getAttribute('data-title'), ellipsisButton.getAttribute('data-artist'));
+    openArtDetailModal(ellipsisButton.getAttribute('data-title'), ellipsisButton.getAttribute('data-artist'));
   }
 
   const likeButton = event.target.closest('[data-like-id]');
@@ -16,6 +17,11 @@ document.addEventListener('click', function (event) {
   const shareButton = event.target.closest('[data-share-info]');
   if (shareButton) {
     handleShareClick(shareButton);
+  }
+
+  const configButton = event.target.closest('.config-button');
+  if (configButton) {
+    openConfigModal();
   }
 });
 
@@ -194,7 +200,6 @@ function addSentinel() {
   main.appendChild(sentinel);
 }
 
-// Function to fetch and render artworks
 async function fetchAndRenderArtworks(isInitialLoad = false) {
   if (isInitialLoad) {
     showLoadingSpinner();
@@ -243,7 +248,6 @@ function setupInfiniteScroll() {
     });
   }, options);
 
-  // Observe the sentinel element
   observeSentinel(window.infiniteScrollObserver);
 }
 
@@ -256,30 +260,26 @@ function observeSentinel(observer) {
 
 document.addEventListener('DOMContentLoaded', () => fetchAndRenderArtworks(true));
 
-// Open modal with Perplexity links
-function openModal(title, artist) {
+function openArtDetailModal(title, artist) {
   const perplexityUrlWork = `https://www.perplexity.ai/search?s=o&q=${encodeURIComponent(`Tell me about "${title}" by ${artist}`)}`;
   const perplexityUrlArtist = `https://www.perplexity.ai/search?s=o&q=${encodeURIComponent(`Tell me about the artist ${artist}`)}`;
 
-  const modal = document.createElement('div');
-  modal.className = 'modal';
-  modal.innerHTML = `
-        <div class="modal-content">
-            <a href="${perplexityUrlWork}" target="_blank" rel="noopener">Ask Perplexity about this work</a>
-            <a href="${perplexityUrlArtist}" target="_blank" rel="noopener">Ask Perplexity about this artist</a>
-        </div>
-    `;
+  const content = `
+    <a href="${perplexityUrlWork}" target="_blank" rel="noopener">Ask Perplexity about this work</a>
+    <a href="${perplexityUrlArtist}" target="_blank" rel="noopener">Ask Perplexity about this artist</a>
+  `;
 
-  // Close modal if clicked on modal or any link inside modal
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal || e.target.tagName === 'A') {
-      closeModal(modal);
-    }
-  });
-
-  document.body.appendChild(modal);
+  const modal = createModal(content);
 }
 
-function closeModal(modal) {
-  modal.remove();
+function openConfigModal() {
+
+  const content = `
+    <p>Artwork Type: ${config.artworkTypeId}</p>
+    <p>Artwork Obscure: ${config.showObscure}</p>
+    <p>Artwork Short Description: ${config.requireShortDescription}</p>
+    <p>Artwork Date Min: ${config.minYear}</p>
+    <p>Artwork Date Max: ${config.maxYear}</p>
+  `;
+  createModal(content);
 }
