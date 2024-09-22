@@ -220,7 +220,7 @@ main {
 }
 
 .modal-content {
-  background-color: #262626;
+  background-color: #363636;
   border-radius: 8px;
   overflow: hidden;
   width: 90%;
@@ -256,14 +256,64 @@ main {
   color: white;
 }
 
-.modal-select {
-  width: 100%;
+.modal-content > *:last-child {
+  border-bottom: none;
+}
+
+.switch-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 15px;
-  margin-bottom: 0px;
   border-bottom: 1px solid #4a4a4a;
-  /* border-radius: 4px; */ */
-  background-color: #363636;
-  color: whitesmoke;
   font-size: 0.875rem;
-  text-align: center;
+}
+
+/* The switch - the box around the slider */
+/* Source: https://www.w3schools.com/howto/howto_css_switch.asp */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 28px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .2s;
+  border-radius: 28px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .2s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:checked + .slider:before {
+  transform: translateX(22px);
 }

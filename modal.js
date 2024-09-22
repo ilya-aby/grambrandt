@@ -10,6 +10,10 @@ export function createModal(content) {
   // Close modal if clicked on modal or any link inside modal
   modal.addEventListener('click', (e) => {
     if (e.target === modal || e.target.tagName === 'A') {
+      // Dispatch a 'close' event
+      const closeEvent = new Event('close');
+      modal.dispatchEvent(closeEvent);
+      
       modal.remove();
     }
   });

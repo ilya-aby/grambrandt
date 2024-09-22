@@ -273,13 +273,62 @@ function openArtDetailModal(title, artist) {
 }
 
 function openConfigModal() {
-
   const content = `
-    <p>Artwork Type: ${config.artworkTypeId}</p>
-    <p>Artwork Obscure: ${config.showObscure}</p>
-    <p>Artwork Short Description: ${config.requireShortDescription}</p>
-    <p>Artwork Date Min: ${config.minYear}</p>
-    <p>Artwork Date Max: ${config.maxYear}</p>
+    <div class="switch-container">
+      <label for="showPaintingsSwitch">Show paintings</label>
+      <label class="switch">
+        <input type="checkbox" id="showPaintingsSwitch" ${config.artworkTypeIds.includes(1) ? 'checked' : ''}>
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="switch-container">
+      <label for="showPhotographsSwitch">Show photographs</label>
+      <label class="switch">
+        <input type="checkbox" id="showPhotographsSwitch" ${config.artworkTypeIds.includes(2) ? 'checked' : ''}>
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="switch-container">
+      <label for="showObscureSwitch">Include more obscure art</label>
+      <label class="switch">
+        <input type="checkbox" id="showObscureSwitch" ${config.showObscure ? 'checked' : ''}>
+        <span class="slider"></span>
+      </label>
+    </div>
   `;
-  createModal(content);
+  const modal = createModal(content);
+
+  // Add event listener for modal close
+  modal.addEventListener('close', updateConfigAndRerender);
+}
+
+function updateConfigAndRerender() {
+  const showPaintings = document.getElementById('showPaintingsSwitch').checked;
+  const showPhotographs = document.getElementById('showPhotographsSwitch').checked;
+  const showObscure = document.getElementById('showObscureSwitch').checked;
+
+  const newArtworkTypeIds = [];
+  if (showPaintings) newArtworkTypeIds.push(1);
+  if (showPhotographs) newArtworkTypeIds.push(2);
+
+  const configChanged = 
+    !arraysEqual(config.artworkTypeIds, newArtworkTypeIds) ||
+    config.showObscure !== showObscure;
+
+  if (configChanged) {
+    config.artworkTypeIds = newArtworkTypeIds;
+    config.showObscure = showObscure;
+    config.seenArtworkIds = [];
+    
+    // Clear existing content
+    document.querySelector('main').innerHTML = '';
+    
+    // Re-fetch and render artworks
+    fetchAndRenderArtworks(true);
+  }
+}
+
+function arraysEqual(a, b) {
+  if (a.length !== b.length) return false;
+  return a.every((val, index) => val === b[index]);
 }
