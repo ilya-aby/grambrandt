@@ -102,6 +102,26 @@ function createRandomEngagement() {
   };
 }
 
+// Occasionally we get back a bad image URL from the API because we're requesting a size that's
+// not supported, resulting in a 402 error. This function attempts to fix the URL by requesting a 
+// "100%" size instead of the fixed size that the API docs recommend using as the default.
+function handleImageError(img, title, artist) {
+  const url = new URL(img.src);
+  const fullIndex = url.pathname.indexOf('/full/');
+  
+  if (fullIndex !== -1) {
+    url.pathname = url.pathname.slice(0, fullIndex) + '/full/pct:100/0/default.jpg';
+    img.src = url.toString();
+  } else {
+    img.src = '/images/placeholder.jpg';
+  }
+  
+  img.onerror = null;
+}
+
+// Attach to the global window object
+window.handleImageError = handleImageError;
+
 function renderPosts(artworks) {
   const main = document.querySelector("main");
   const postContent = artworks.map(artwork => {
@@ -129,7 +149,7 @@ function renderPosts(artworks) {
               </svg>
             </button>
           </div>
-          <img class="post-image" src="${artwork.image_url}" alt="${artwork.title} by ${artwork.artist_title}" onerror="this.onerror=null; this.src='/images/placeholder.jpg';">
+          <img class="post-image" src="${artwork.image_url}" alt="${artwork.title} by ${artwork.artist_title}" onerror="handleImageError(this, '${artwork.title}', '${artwork.artist_title}')">
           <div class="post-footer">
             <div class="actions">
               <div class="action-group">

@@ -14,6 +14,7 @@ Initially built as an exercise for the [Scrimba](scrimba.com) front-end developm
 - Infinite scroll with progressive fetching of more artwork from the API
 - Dynamically generated content from JavaScript post objects
 - "Ask Perplexity" about the artist & work
+- Filter options to view more or less popular work and filter by artwork type
 
 ## Technologies Used
 
