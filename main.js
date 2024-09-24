@@ -1,6 +1,7 @@
 import { fetchArtwork } from './api.js';
 import { config } from './config.js';
 import { createModal } from './modal.js';
+import { renderCard } from './render.js';
 
 // Event listener to handle clicks on ellipsis buttons and action buttons for a post
 document.addEventListener('click', function (event) {
@@ -62,46 +63,6 @@ function shuffleArray(array) {
   }
 }
 
-// Transforms artist name into username, avatar initials, and random background color
-function createUserInfo(name) {
-  const cleanedName = name.replace(/['"\-()]/g, '').trim();
-  const words = cleanedName.split(' ').filter(word => word.length > 0);
-
-  let username, avatarInitials;
-
-  if (words.length === 0) {
-    username = 'Unknown';
-    avatarInitials = 'UN';
-  } else if (words.length === 1) {
-    username = words[0].toLowerCase();
-    avatarInitials = words[0].slice(0, 2).toUpperCase();
-  } else {
-    const lastName = words.pop().toLowerCase();
-    const initials = words.map(word => word[0].toLowerCase()).join('');
-    username = initials + lastName;
-    avatarInitials = (words[0][0] + lastName[0]).toUpperCase();
-  }
-
-  const backgroundColor = `hsl(${Math.floor(Math.random() * 360)}, 60%, 30%)`;
-
-  return { username, avatarInitials, backgroundColor };
-}
-
-// Transforms art creation years into "X years ago" for post
-function createYearsAgoString(dateStart, dateEnd) {
-  const yearDifference = new Date().getFullYear() - Math.round((dateStart + dateEnd) / 2);
-  return yearDifference === 1 ? "1 year ago" : `${yearDifference} years ago`;
-}
-
-// Create random engagement numbers
-function createRandomEngagement() {
-  return {
-    likesString: Math.floor(Math.random() * 900 + 100).toString(),
-    commentsString: Math.floor(Math.random() * 90 + 10).toString(),
-    sharesString: Math.floor(Math.random() * 90 + 10).toString()
-  };
-}
-
 // Occasionally we get back a bad image URL from the API because we're requesting a size that's
 // not supported, resulting in a 402 error. This function attempts to fix the URL by requesting a 
 // "100%" size instead of the fixed size that the API docs recommend using as the default.
@@ -122,75 +83,15 @@ function handleImageError(img) {
 // Attach to the global window object
 window.handleImageError = handleImageError;
 
+// Render posts to the DOM with data from the API
+// Include a sentinel div to trigger infinite scroll when reached
 function renderPosts(artworks) {
-  const main = document.querySelector("main");
-  const postContent = artworks.map(artwork => {
-    const { username, avatarInitials, backgroundColor } = createUserInfo(artwork.artist_title);
-    const postCaption = `<em>${artwork.title}</em>, ${artwork.medium_display.replace(/^\w/, c => c.toLowerCase())}. ${artwork.short_description}`;
-    const yearsAgo = createYearsAgoString(artwork.date_start, artwork.date_end);
-    const engagement = createRandomEngagement();
-
-    return `
-      <div class="container">
-        <div class="post">
-          <div class="post-header">
-            <div class="user-avatar" style="background-color: ${backgroundColor};">
-              <span class="initials">${avatarInitials}</span>
-            </div>
-            <div class="user-info">
-              <a class="bold-text" href="https://www.artic.edu/artists/${artwork.artist_id}" target="_blank" rel="noopener">${artwork.artist_title}</a>
-              <p class="small-text">${artwork.place_of_origin}</p>
-            </div>
-            <button class="ellipsis-button" data-title="${artwork.title}" data-artist="${artwork.artist_title}" aria-label="More information">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="3" cy="8" r="1.5" fill="white"/>
-                <circle cx="8" cy="8" r="1.5" fill="white"/>
-                <circle cx="13" cy="8" r="1.5" fill="white"/>
-              </svg>
-            </button>
-          </div>
-          <img class="post-image" src="${artwork.image_url}" alt="${artwork.title} by ${artwork.artist_title}" onerror="handleImageError(this)">
-          <div class="post-footer">
-            <div class="actions">
-              <div class="action-group">
-                <svg class="icon" data-like-id="${artwork.id}" fill="currentColor" stroke="none" aria-label="Like" role="img" viewBox="0 0 24 24">
-                  <title>Like</title>
-                  <path d="M16.792 3.904A4.989 4.989 0 0 1 21.5 9.122c0 3.072-2.652 4.959-5.197 7.222-2.512 2.243-3.865 3.469-4.303 3.752-.477-.309-2.143-1.823-4.303-3.752C5.141 14.072 2.5 12.167 2.5 9.122a4.989 4.989 0 0 1 4.708-5.218 4.21 4.21 0 0 1 3.675 1.941c.84 1.175.98 1.763 1.12 1.763s.278-.588 1.11-1.766a4.17 4.17 0 0 1 3.679-1.938m0-2a6.04 6.04 0 0 0-4.797 2.127 6.052 6.052 0 0 0-4.787-2.127A6.985 6.985 0 0 0 .5 9.122c0 3.61 2.55 5.827 5.015 7.97.283.246.569.494.853.747l1.027.918a44.998 44.998 0 0 0 3.518 3.018 2 2 0 0 0 2.174 0 45.263 45.263 0 0 0 3.626-3.115l.922-.824c.293-.26.59-.519.885-.774 2.334-2.025 4.98-4.32 4.98-7.94a6.985 6.985 0 0 0-6.708-7.218Z"></path>
-                </svg>
-                <p class="bold-text">${engagement.likesString}</p>
-              </div>
-              <div class="action-group">
-                <svg class="icon" fill="none" stroke="currentColor" aria-label="Comment" role="img" viewBox="0 0 24 24">
-                  <title>Comment</title>
-                  <path d="M20.656 17.008a9.993 9.993 0 1 0-3.59 3.615L22 22Z" stroke-width="2"></path>
-                </svg>
-                <p class="bold-text">${engagement.commentsString}</p>
-              </div>
-              <div class="action-group">
-                <svg class="icon" data-share-info='${JSON.stringify({
-                  url: artwork.web_url,
-                  title: artwork.title,
-                  artist: artwork.artist_title
-                })}' fill="whitesmoke" stroke="none" aria-label="Share" role="img" viewBox="0 0 24 24">
-                  <title>Share</title>
-                  <line fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="2" x1="22" x2="9.218" y1="3" y2="10.083"></line>
-                  <polygon fill="none" points="11.698 20.334 22 3.001 2 3.001 9.218 10.084 11.698 20.334" stroke="currentColor" stroke-linejoin="round" stroke-width="2"></polygon>
-                </svg>
-                <p class="bold-text">${engagement.sharesString}</p>
-              </div>
-            </div>
-            <p class="light-text caption"><span class="bold-text">${username}</span> ${postCaption}</p>
-            <p class="small-text gray-text">${yearsAgo}</p>
-          </div>
-        </div>
-      </div>
-      `;
-  }).join('');
-
-  main.insertAdjacentHTML('beforeend', postContent);
+  const postContent = artworks.map(artwork => renderCard(artwork)).join('');
+  document.querySelector("main").insertAdjacentHTML('beforeend', postContent);
   addSentinel();
 }
 
+// Show loading spinner when initial artworks are fetched
 function showLoadingSpinner() {
   let spinner = document.querySelector(".spinner");
   if (!spinner) {
@@ -201,6 +102,7 @@ function showLoadingSpinner() {
   spinner.style.display = 'block';
 }
 
+// Hide loading spinner when artworks are fetched
 function hideLoadingSpinner() {
   const spinner = document.querySelector(".spinner");
   if (spinner) {
@@ -220,6 +122,7 @@ function addSentinel() {
   main.appendChild(sentinel);
 }
 
+// Fetch artworks from the API and render them to the DOM
 async function fetchAndRenderArtworks(isInitialLoad = false) {
   if (isInitialLoad) {
     showLoadingSpinner();
@@ -252,6 +155,7 @@ async function fetchAndRenderArtworks(isInitialLoad = false) {
   }
 }
 
+// Set up intersection observer to trigger infinite scroll
 function setupInfiniteScroll() {
   const options = {
     root: null,
@@ -271,6 +175,7 @@ function setupInfiniteScroll() {
   observeSentinel(window.infiniteScrollObserver);
 }
 
+// Observe the sentinel div to trigger infinite scroll
 function observeSentinel(observer) {
   const sentinel = document.querySelector('.sentinel');
   if (sentinel && observer) {
@@ -278,8 +183,7 @@ function observeSentinel(observer) {
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => fetchAndRenderArtworks(true));
-
+// Open the art detail modal with Perplexity links
 function openArtDetailModal(title, artist) {
   const perplexityUrlWork = `https://www.perplexity.ai/search?s=o&q=${encodeURIComponent(`Tell me about "${title}" by ${artist}`)}`;
   const perplexityUrlArtist = `https://www.perplexity.ai/search?s=o&q=${encodeURIComponent(`Tell me about the artist ${artist}`)}`;
@@ -292,6 +196,7 @@ function openArtDetailModal(title, artist) {
   const modal = createModal(content);
 }
 
+// Open the config modal to allow users to customize the artwork displayed
 function openConfigModal() {
   const content = `
     <div class="switch-container">
@@ -352,3 +257,6 @@ function arraysEqual(a, b) {
   if (a.length !== b.length) return false;
   return a.every((val, index) => val === b[index]);
 }
+
+// Fetch and render artworks on page load
+fetchAndRenderArtworks(true);

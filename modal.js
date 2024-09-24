@@ -1,3 +1,4 @@
+// Generic modal function to display content in a modal dialog
 export function createModal(content) {
   const modal = document.createElement('div');
   modal.className = 'modal';
@@ -13,7 +14,7 @@ export function createModal(content) {
       // Dispatch a 'close' event
       const closeEvent = new Event('close');
       modal.dispatchEvent(closeEvent);
-      
+
       modal.remove();
     }
   });
