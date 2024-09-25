@@ -54,7 +54,8 @@ export async function fetchArtwork() {
     }
 
     const data = await response.json();
-    console.log(data);
+    console.log(`${data.pagination.total} artworks match current query`);
+    console.table(data.data);
     const iiifUrl = data.config.iiif_url;
     const webUrl = data.config.website_url;
     const newArtworks = data.data.filter(artwork => {

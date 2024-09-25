@@ -29,16 +29,15 @@ document.addEventListener('click', function (event) {
 function handleLikeClick(likeButton) {
   const artworkId = likeButton.getAttribute('data-like-id');
   const likeCount = likeButton.nextElementSibling;
-    // Toggle like status and update count
-    if (likeButton.classList.contains('liked')) {
-      // Currently liked, perform unlike
-      likeCount.textContent = (parseInt(likeCount.textContent) - 1).toString();
-      likeButton.classList.remove('liked');
-    } else {
-      // Currently not liked, perform like
-      likeCount.textContent = (parseInt(likeCount.textContent) + 1).toString();
-      likeButton.classList.add('liked');
-  } 
+  // Toggle like status and update count
+  if (likeButton.classList.contains('liked')) {
+    // Currently liked, perform unlike
+    likeCount.textContent = (parseInt(likeCount.textContent) - 1).toString();
+  } else {
+    // Currently not liked, perform like
+    likeCount.textContent = (parseInt(likeCount.textContent) + 1).toString();
+  }
+  likeButton.classList.toggle('liked');
 }
 
 function handleShareClick(shareButton) {

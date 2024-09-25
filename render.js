@@ -10,8 +10,10 @@ export function renderCard(artwork) {
     date_start, 
     date_end, 
     place_of_origin, 
-    image_url, web_url } = artwork;
-    
+    image_url, 
+    web_url 
+  } = artwork;
+
   const { username, avatarInitials, backgroundColor } = getInstagramInfoForArtistName(artist_title);
   const { numLikes, numComments, numShares } = getRandomEngagement();
 
