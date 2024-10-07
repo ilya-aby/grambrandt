@@ -1,6 +1,6 @@
 # Grambrandt
 
-[Grambrandt](grambrandt.com) is a parody of Instagram, featuring art from the Art Institute of Chicago. 
+Grambrandt is a parody of Instagram, featuring art from the Art Institute of Chicago. You can view the live website at [grambrandt.com](https://grambrandt.com)
 
 Initially built as an exercise for the [Scrimba](scrimba.com) front-end development course and then forked & expanded to use a live API to render real artwork.
 
