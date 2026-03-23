@@ -11,7 +11,6 @@ export async function fetchArtwork() {
   const query = {
     bool: {
       must: [
-        { term: { has_not_been_viewed_much: config.showObscure } },
         { exists: { field: "artist_id" } },
         { exists: { field: "image_id" } },
         { terms: { artwork_type_id: config.artworkTypeIds } }
@@ -21,6 +20,13 @@ export async function fetchArtwork() {
       ]
     }
   };
+
+  // AIC currently flags obscure works with `true`, but many non-obscure works
+  // have no value for this field. Excluding `true` is a safer default than
+  // requiring an explicit `false`, which now returns zero matches.
+  if (!config.showObscure) {
+    query.bool.must_not.push({ term: { has_not_been_viewed_much: true } });
+  }
 
   if (config.requireShortDescription) {
     query.bool.must.push({ exists: { field: "short_description" } });
